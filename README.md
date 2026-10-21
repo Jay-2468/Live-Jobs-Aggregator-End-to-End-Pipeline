@@ -2,20 +2,21 @@
 
 ## 📌 Project Overview
 
-The **Live Jobs Aggregator End-to-End Pipeline** is a data engineering project that collects job listings from Google Jobs using the **SerpApi Google Jobs API**, processes the data through a multi-layer data pipeline, and generates visualizations to analyze job market trends.
+The **Live Jobs Aggregator End-to-End Data Engineering Pipeline** is a project built using Databricks that collects job listings from Google Jobs through the SerpApi API, processes the data using the Bronze, Silver, and Gold layers of the Medallion Architecture, and generates visualizations to analyze job market trends.
 
-The pipeline follows the **Medallion Architecture**, consisting of Bronze, Silver, and Gold layers. Data is fetched from the API, stored in the Bronze layer, processed and refined in the Silver layer, and transformed into analytics-ready datasets in the Gold layer.
+The project uses **Databricks notebooks and a scheduled pipeline** to orchestrate the complete workflow. Instead of manually executing each notebook, the pipeline runs the three processing layers in sequence on a recurring schedule. In this implementation, the pipeline is configured to execute every **5 minutes**, allowing repeated job data collection and processing while the schedule remains enabled.
 
-The final datasets are used to create bar chart visualizations that identify companies with the highest number of job postings and cities with the greatest job demand.
+The final Gold-layer data supports bar plot visualizations of top companies by job postings and job demand across cities.
 
 ## 🎯 Project Objectives
 
-- Fetch live job listings from Google Jobs using SerpApi.
-- Integrate API endpoints, URLs, and query parameters to retrieve job data.
-- Implement a multi-layer data pipeline using Bronze, Silver, and Gold layers.
-- Progressively process and refine job listing data across the layers.
-- Analyze job postings by company and city.
-- Visualize job market insights using bar plots.
+- Extract job listings from Google Jobs using SerpApi.
+- Retrieve API data using the appropriate URL and query parameters.
+- Implement a multi-layer data pipeline using the Medallion Architecture.
+- Process data through Bronze, Silver, and Gold layers.
+- Orchestrate multiple Databricks notebooks in a single pipeline.
+- Schedule recurring pipeline executions at 5-minute intervals.
+- Visualize job market trends using company-wise and city-wise job posting counts.
 
 ## 🏗️ Pipeline Architecture
 
@@ -24,6 +25,7 @@ The final datasets are used to create bar chart visualizations that identify com
 
 ## ⚙️ Technologies Used
 
+- **Databricks** — Notebook development and pipeline orchestration.
 - **SerpApi** — API integration to retrieve Google Jobs search results.
 - **Google Jobs API** — Source of job listing information through SerpApi.
 - **Bronze Layer** — Storage of fetched job data in its raw form.
@@ -35,68 +37,95 @@ The final datasets are used to create bar chart visualizations that identify com
 
 ## 🔄 Data Pipeline Workflow
 
-### 1. Data Extraction
+### 1. Data Extraction — SerpApi
+- Connected to SerpApi to retrieve job listings from Google Jobs.
+- Used the API URL and query parameters to request job search results.
+- Fetched job-related information for downstream processing.
 
-Integrated SerpApi to fetch job listings from Google Jobs. Used the API URL and appropriate parameters to retrieve job-related information from the search results.
-
-### 2. Bronze Layer — Raw Data
-
-Fetched and stored the initial job listing data in the Bronze layer. This layer serves as the raw data foundation for subsequent processing.
+### 2. Bronze Layer — Raw Data Ingestion
+- Retrieved job listing data from the API.
+- Stored the extracted data in the Bronze layer.
+- Maintained the initial data layer for subsequent processing.
 
 ### 3. Silver Layer — Data Processing
-
-Retrieved data from the Bronze layer and processed it into a refined dataset suitable for further analysis.
+- Read data from the Bronze layer.
+- Processed and refined job listing records.
+- Prepared the data for analytical transformations.
 
 ### 4. Gold Layer — Analytics-Ready Data
+- Read the processed data from the Silver layer.
+- Prepared the final dataset for job market analysis.
+- Used the Gold-layer data as the source for visualizations.
 
-Transformed the processed data from the Silver layer into a Gold-layer dataset designed to support analytical queries and job market insights.
+### 5. Databricks Pipeline Orchestration
+Created a Databricks pipeline/workflow to coordinate the three notebook tasks instead of running each notebook manually.
+**Key features:**
+- **Automated execution:** Runs the Bronze, Silver, and Gold notebooks as part of one orchestrated workflow.
+- **Scheduled runs:** Configured a recurring execution interval of 5 minutes.
+- **Sequential processing:** Executes the layers in the required order so downstream processing can use upstream data.
+- **Repeated data ingestion:** Repeats the workflow while the schedule remains enabled, allowing the dataset to be refreshed with newly retrieved job listings.
 
-### 5. Data Visualization
+The 5-minute interval represents the configured workflow schedule, not a guarantee that each complete pipeline run finishes within 5 minutes. Actual execution time depends on API response times, data volume, and compute availability.
 
-Created bar plot visualizations from the processed data to analyze:
+### 6. Data Visualization
+Created bar plots using the processed job listing data.
+- **Top Companies by Job Postings:** Compares the number of job listings associated with different companies.
+- **Job Demand by Cities:** Compares job posting counts across cities to understand the geographic distribution of advertised opportunities.
 
-- **Top Companies by Job Postings:** Identifies companies with the highest number of job listings in the collected dataset.
-- **Job Demand by Cities:** Compares job posting counts across different cities to highlight locations with more advertised opportunities.
-
-## 📊 Key Insights and Visualizations
+## 📊 Visualizations
 
 ### Top Companies by Job Postings
 
-A bar plot comparing companies based on the number of job listings available in the collected dataset.
+Displays companies ranked by the number of job postings found in the collected dataset.
 
 ### Job Demand by Cities
 
-A bar plot comparing cities based on the number of job postings, providing a view of the geographic distribution of advertised opportunities.
+Displays the distribution of job postings across cities, helping identify locations with more advertised opportunities.
 
-*Note: Results represent the collected dataset and may vary depending on search parameters, location, and collection time.*
+The visualizations reflect the collected dataset and can change as new data is ingested.
 
-## 💡 Key Learning Outcomes
+## ⚙️ Pipeline Scheduling
 
-- Working with external APIs to extract real-world job listing data.
-- Using SerpApi to access Google Jobs search results.
-- Understanding and implementing the Bronze, Silver, and Gold data-layer architecture.
-- Building a multi-stage data processing pipeline.
-- Preparing structured datasets for downstream analytics.
-- Creating visualizations to communicate job market trends.
+The Databricks workflow is configured to run automatically every **5 minutes**.
 
-## 🔐 API Key and Configuration
+| Configuration | Details |
+|---|---|
+| Orchestration platform | Databricks |
+| Processing tasks | Bronze, Silver, Gold notebooks |
+| Execution mode | Scheduled workflow |
+| Configured interval | Every 5 minutes |
+| Manual execution | Not required for each scheduled cycle |
+| Continuous operation | Repeats while the schedule is enabled and the workflow is active |
 
-This project requires a SerpApi API key to access Google Jobs search results.
+The workflow automates the execution of the notebooks. It does not guarantee that Google Jobs listings change during every cycle, and the pipeline's actual refresh behavior depends on the API response and the data processing logic.
 
-1. Create an account on [SerpApi](https://serpapi.com/).
+### 💡 Key Learning Outcomes
+- Integrating external APIs into a data engineering pipeline.
+- Implementing the Bronze, Silver, and Gold layers of the Medallion Architecture.
+- Developing modular data processing notebooks in Databricks.
+- Orchestrating notebook dependencies through a scheduled workflow.
+- Automating recurring data ingestion and transformation.
+- Preparing analytical datasets for downstream visualization.
+- Analyzing job market trends using company-wise and city-wise aggregations.
+
+### 🔐 API Key and Configuration
+This project requires a SerpApi API key.
+1. Create an account on SerpApi.
 2. Obtain an API key from your SerpApi dashboard.
-3. Configure the key securely using environment variables or your platform's secret-management facility.
+3. Store the API key securely using Databricks secrets or environment variables.
+4. Configure the required API parameters in your notebook.
+5. Set up the Databricks workflow and configure its schedule.
 
-**Security:** Never commit API keys, tokens, or other credentials to GitHub. Store them securely and exclude local environment files containing secrets from version control.
+**Security:** Never upload API keys, access tokens, or other credentials to GitHub.
 
 ## 🚀 Future Improvements
-
-- Automate recurring job data collection.
+- Implement incremental data processing to reduce unnecessary reprocessing.
+- Add duplicate detection for job listings.
 - Track changes in job postings over time.
-- Identify duplicate job listings.
-- Analyze job postings by role, experience level, and employment type.
-- Build a dashboard for interactive job market analysis.
-- Add data quality checks and pipeline monitoring.
+- Add data quality checks and pipeline failure notifications.
+- Analyze job listings by skills, experience level, and employment type.
+- Develop an interactive dashboard for job market analytics.
+- Optimize API usage and scheduled execution frequency.
 
 ## 👨‍💻 Author
 
